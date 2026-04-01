@@ -4,18 +4,14 @@
 NimbusFS is a modern, high-performance distributed file system dashboard designed for seamless file management, real-time monitoring, and robust data replication.
 
 ![NimbusFS Screenshot](screen.png)
-
 ## 🚀 Features
-
 - **Distributed Storage**: Simulates a multi-node storage environment.
 - **Data Replication**: Automatically replicates files across multiple nodes to ensure data availability and fault tolerance.
 - **File Locking**: Built-in concurrency control with file locking and unlocking mechanisms.
 - **Real-time Dashboard**: Monitor system health, storage usage, active clients, and recent activities in real-time.
 - **User Activity Logs**: Detailed tracking of all file operations (Upload, Download, Lock, Unlock, Delete).
 - **Responsive UI**: A sleek, dark-themed dashboard built with React and Tailwind CSS.
-
 ## 🛠️ Tech Stack
-
 ### Backend
 - **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Python)
 - **Database**: [SQLite](https://sqlite.org/) with [SQLAlchemy](https://www.sqlalchemy.org/) ORM
