@@ -20,6 +20,8 @@ class FileMetadata(Base):
     locked = Column(Boolean, default=False)
     upload_date = Column(DateTime, default=datetime.utcnow)
     node_locations = Column(String) # Serialized list e.g. "node1,node2,node3"
+    is_deleted = Column(Boolean, default=False)
+    unlock_at = Column(DateTime, nullable=True)
 
 class ActivityLog(Base):
     __tablename__ = "activity_logs"
@@ -29,5 +31,31 @@ class ActivityLog(Base):
     action = Column(String) # e.g. "UPLOAD", "DOWNLOAD", "LOCK", "UNLOCK", "DELETE"
     filename = Column(String)
     user = Column(String, default="Admin")
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    password_hash = Column(String)
+    role = Column(String, default="standard_user")
+
+class SharedLink(Base):
+    __tablename__ = "shared_links"
+
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String, index=True)
+    token = Column(String, unique=True, index=True)
+    password_hash = Column(String, nullable=True)
+    expires_at = Column(DateTime)
+    max_downloads = Column(Integer, default=100)
+    current_downloads = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class Setting(Base):
+    __tablename__ = "settings"
+
+    key = Column(String, primary_key=True, index=True)
+    value = Column(String)
 
 Base.metadata.create_all(bind=engine)

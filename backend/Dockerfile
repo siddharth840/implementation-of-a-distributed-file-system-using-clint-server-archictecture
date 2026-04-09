@@ -10,11 +10,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY . .
 
-# Create storage nodes
-RUN mkdir -p backend/storage/node1 backend/storage/node2 backend/storage/node3
+# Create storage base directory
+RUN mkdir -p storage
 
-# Expose port
-EXPOSE 8000
+# Default port
+EXPOSE 8005
 
-# Start server
-CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start server (can be overridden by command in Railway/Docker-compose)
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8005"]

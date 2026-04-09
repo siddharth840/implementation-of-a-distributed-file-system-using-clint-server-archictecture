@@ -1,32 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
+import Settings from './pages/Settings';
 import useFiles from './hooks/useFiles';
+import PublicDownload from './components/PublicDownload';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import LoginPage from './pages/LoginPage';
 
-function App() {
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [activeView, setActiveView] = useState('dashboard');
-    const [user, setUser] = useState({
-        name: 'Admin',
-        role: 'administrator',
-        avatar: null
-    });
+function AppContent() {
+    const { user, loading } = useAuth();
+    const [selectedFile, setSelectedFile] = React.useState(null);
+    const [activeView, setActiveView] = React.useState('dashboard');
+    const [searchQuery, setSearchQuery] = React.useState('');
 
-    const fileApi = useFiles(user.name);
+    // Simple routing for shared links
+    const path = window.location.pathname;
+    const isSharedPath = path.startsWith('/shared/');
+    const shareToken = isSharedPath ? path.split('/')[2] : null;
 
-    // Auto-refresh when user changes
-    useEffect(() => {
-        fileApi.refreshData();
-    }, [user.name]);
+    const fileApi = useFiles(user?.name || 'Guest');
 
-    const toggleUser = () => {
-        if (user.name === 'Admin') {
-            setUser({ name: 'Guest User', role: 'standard_user', avatar: null });
-        } else {
-            setUser({ name: 'Admin', role: 'administrator', avatar: null });
+    // Sync views and data
+    React.useEffect(() => {
+        if (!loading && user && !isSharedPath) {
+            fileApi.refreshData(searchQuery, activeView === 'trash');
         }
-    };
+    }, [user, activeView, searchQuery, isSharedPath, loading]);
+
+    if (loading) return null;
+
+    if (isSharedPath && shareToken) {
+        return <PublicDownload token={shareToken} />;
+    }
+
+    if (!user) {
+        return <LoginPage />;
+    }
 
     return (
         <div className="flex h-screen bg-[#0f111a] text-white overflow-hidden font-sans">
@@ -36,21 +46,44 @@ function App() {
                 <Navbar
                     onUpload={fileApi.uploadFile}
                     isUploading={fileApi.loading}
+                    uploadProgress={fileApi.uploadProgress}
                     user={user}
-                    onToggleUser={toggleUser}
+                    onToggleUser={() => {}} // User switching is now through login
+                    onSearch={setSearchQuery}
+                    onViewChange={setActiveView}
+                    activity={fileApi.activity}
                 />
 
                 <main className="flex-1 overflow-y-auto p-6 transition-all duration-300">
-                    <Dashboard
-                        selectedFile={selectedFile}
-                        setSelectedFile={setSelectedFile}
-                        fileApi={fileApi}
-                        activeView={activeView}
-                        role={user.role}
-                    />
+                    {activeView === 'settings' ? (
+                        <Settings 
+                            user={user} 
+                            onToggleUser={() => {}} 
+                            stats={fileApi.stats} 
+                            nodeHealth={fileApi.nodeHealth}
+                            updateSetting={fileApi.updateSetting}
+                            settings={fileApi.settings}
+                        />
+                    ) : (
+                        <Dashboard
+                            selectedFile={selectedFile}
+                            setSelectedFile={setSelectedFile}
+                            fileApi={fileApi}
+                            activeView={activeView}
+                            role={user.role}
+                        />
+                    )}
                 </main>
             </div>
         </div>
+    );
+}
+
+function App() {
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
     );
 }
 

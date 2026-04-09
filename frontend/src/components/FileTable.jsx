@@ -1,7 +1,6 @@
-import React from 'react';
-import { FileText, MoreVertical, Download, Trash2, Lock, Unlock } from 'lucide-react';
+import { FileText, MoreVertical, Download, Trash2, Lock, Unlock, Eye, RotateCcw, Share2 } from 'lucide-react';
 
-const FileTable = ({ files, onSelect, onDelete, onLock, onDownload }) => {
+const FileTable = ({ files, onSelect, onDelete, onLock, onDownload, isTrashView, onRestore, onPermanentDelete, onPreview, onShare }) => {
     const formatSize = (bytes) => {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -58,24 +57,57 @@ const FileTable = ({ files, onSelect, onDelete, onLock, onDownload }) => {
                             </td>
                             <td className="px-6 py-4 text-right">
                                 <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); onDownload(file.filename); }}
-                                        className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors"
-                                    >
-                                        <Download size={16} />
-                                    </button>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); onLock(file.filename, file.locked); }}
-                                        className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors"
-                                    >
-                                        {file.locked ? <Unlock size={16} /> : <Lock size={16} />}
-                                    </button>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); onDelete(file.filename); }}
-                                        className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-red-400 transition-colors"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
+                                    {!isTrashView ? (
+                                        <>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onPreview(file.filename); }}
+                                                className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-accent transition-colors"
+                                            >
+                                                <Eye size={16} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onDownload(file.filename); }}
+                                                className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors"
+                                            >
+                                                <Download size={16} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onLock(file.filename, file.locked); }}
+                                                className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors"
+                                            >
+                                                {file.locked ? <Unlock size={16} /> : <Lock size={16} />}
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onShare(file.filename); }}
+                                                className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-blue-400 transition-colors"
+                                            >
+                                                <Share2 size={16} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onDelete(file.filename); }}
+                                                className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-red-400 transition-colors"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onRestore(file.filename); }}
+                                                className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-green-400 transition-colors"
+                                                title="Restore"
+                                            >
+                                                <RotateCcw size={16} />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); onPermanentDelete(file.filename); }}
+                                                className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-red-500 transition-colors"
+                                                title="Delete Permanently"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </td>
                         </tr>

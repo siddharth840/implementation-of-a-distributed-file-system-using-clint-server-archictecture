@@ -1,16 +1,52 @@
 version: '3.8'
 
 services:
+  # Main API Backend
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - "8005:8005"
     volumes:
-      - ./backend/storage:/app/backend/storage
       - ./backend/nimbusfs.db:/app/nimbusfs.db
     environment:
       - PYTHONUNBUFFERED=1
+      - NODE1_URL=http://node1:8001
+      - NODE2_URL=http://node2:8002
+      - NODE3_URL=http://node3:8003
+    depends_on:
+      - node1
+      - node2
+      - node3
+    command: ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8005"]
 
+  # Storage Node 1
+  node1:
+    build: ./backend
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend/storage/node1:/app/storage/node1
+    command: ["python", "node_server.py", "--node", "node1", "--port", "8001"]
+
+  # Storage Node 2
+  node2:
+    build: ./backend
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./backend/storage/node2:/app/storage/node2
+    command: ["python", "node_server.py", "--node", "node2", "--port", "8002"]
+
+  # Storage Node 3
+  node3:
+    build: ./backend
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./backend/storage/node3:/app/storage/node3
+    command: ["python", "node_server.py", "--node", "node3", "--port", "8003"]
+
+  # React Frontend (Nginx)
   frontend:
     build: ./frontend
     ports:
